@@ -1,0 +1,52 @@
+#! /bin/python3
+# -*- coding: Utf-8 -*
+
+import sys
+
+def print_help():
+    print("USAGE")
+    print("\t" + "./107transfer [num den]*" + "\n")
+    print("DESCRIPTION")
+    print("\t" + "num" + "\t" + "polynomial numerator defined by its coefficients")
+    print("\t" + "den" + "\t" + "polynomial denominator defined by its coefficients")
+    return 0
+
+def polynomial(x: float, coefficients: list):
+    coefficients = reversed(coefficients)
+    y = 0
+    for c in coefficients:
+        y = (y * x) + c
+    return y
+
+def main(argc: int, argv: list):
+    if argc == 2 and argv[1] == "-h":
+        return print_help()
+    if argc % 2 != 1:
+        return 84
+    try:
+        args = [(argv[i].split("*"), argv[i + 1].split("*")) for i in range(1, argc, 2)]
+        if not all(len(x) > 0 and (x.isdigit() or (x[0] == "-" and x[1:].isdigit())) for t in args for l in t for x in l):
+            raise ValueError
+        coefficient_list = [[[int(x) for x in argv[i].split("*")], [int(y) for y in argv[i + 1].split("*")]] for i in range(1, argc, 2)]
+    except ValueError:
+        return 84
+    results = list()
+    x = 0
+    while x <= 1:
+        num_product = den_product = 1
+        try:
+            for num, den in coefficient_list:
+                num_product *= polynomial(x, num)
+                den_product *= polynomial(x, den)
+            result = num_product / den_product
+        except ZeroDivisionError:
+            return 84
+        results.append((x, result))
+        x += 0.001
+        x = round(x, 3)
+    for x, result in results:
+        print(f"{x:.3f} -> {result:.5f}")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main(len(sys.argv), sys.argv.copy()))
